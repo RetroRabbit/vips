@@ -17,7 +17,7 @@ import (
 	"unsafe"
 )
 
-const DEBUG = true
+const DEBUG = false
 
 var (
 	MARKER_JPEG = []byte{0xff, 0xd8}
