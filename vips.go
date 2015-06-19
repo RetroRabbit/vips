@@ -329,7 +329,7 @@ func Resize(buf []byte, o Options) ([]byte, error) {
 	case JPEG:
 		C.vips_jpegsave_custom(image, &ptr, &length, 1, C.int(o.Quality), 0)
 	case WEBP:
-		C.vips_webpsave_custom(image, &ptr, &length, 1, C.int(o.Quality)))
+		C.vips_webpsave_custom(image, &ptr, &length, 1, C.int(o.Quality))
 	default:
 		C.vips_jpegsave_custom(image, &ptr, &length, 1, C.int(o.Quality), 0)
 	}
