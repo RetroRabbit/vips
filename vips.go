@@ -63,6 +63,7 @@ type Options struct {
 	Crop         bool
 	Enlarge      bool
 	Extend       Extend
+	Interlaced	 bool
 	Embed        bool
 	Interpolator Interpolator
 	Gravity      Gravity
@@ -325,13 +326,13 @@ func Resize(buf []byte, o Options) ([]byte, error) {
 	var ptr unsafe.Pointer
 	switch o.Format {
 	case PNG:
-		C.vips_pngsave_custom(image, &ptr, &length, 1, C.int(o.Quality), 0)
+		C.vips_pngsave_custom(image, &ptr, &length, 1, C.int(o.Quality), o.Interlaced)
 	case JPEG:
-		C.vips_jpegsave_custom(image, &ptr, &length, 1, C.int(o.Quality), 0)
+		C.vips_jpegsave_custom(image, &ptr, &length, 1, C.int(o.Quality), o.Interlaced)
 	case WEBP:
 		C.vips_webpsave_custom(image, &ptr, &length, 1, C.int(o.Quality))
 	default:
-		C.vips_jpegsave_custom(image, &ptr, &length, 1, C.int(o.Quality), 0)
+		C.vips_jpegsave_custom(image, &ptr, &length, 1, C.int(o.Quality), o.Interlaced)
 	}
 	C.g_object_unref(C.gpointer(image))
 
@@ -351,7 +352,7 @@ func resizeError() error {
 type Gravity int
 
 const (
-	CENTRE Gravity = 1 << iota
+	CENTRE Gravity = iota
 	NORTH
 	EAST
 	SOUTH
@@ -359,25 +360,22 @@ const (
 )
 
 func sharpCalcCrop(inWidth, inHeight, outWidth, outHeight int, gravity Gravity) (int, int) {
-	left := (inWidth - outWidth + 1) / 2
-	top := (inHeight - outHeight + 1) / 2
-
-	if (gravity & NORTH) != 0 {
-		top = 0
-	}
-
-	if (gravity & EAST) != 0 {
+	left, top := 0, 0
+	switch gravity {
+	case NORTH:
+		left = (inWidth - outWidth + 1) / 2
+	case EAST:
 		left = inWidth - outWidth
-	}
-
-	if (gravity & SOUTH) != 0 {
+		top = (inHeight - outHeight + 1) / 2
+	case SOUTH:
+		left = (inWidth - outWidth + 1) / 2
 		top = inHeight - outHeight
+	case WEST:
+		top = (inHeight - outHeight + 1) / 2
+	default:
+		left = (inWidth - outWidth + 1) / 2
+		top = (inHeight - outHeight + 1) / 2
 	}
-
-	if (gravity & WEST) != 0 {
-		left = 0
-	}
-
 	return left, top
 }
 
