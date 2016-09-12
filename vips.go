@@ -66,6 +66,7 @@ type Options struct {
 	Interlaced	 bool
 	Embed        bool
 	Interpolator Interpolator
+	BlurAmount   float32
 	Gravity      Gravity
 	Quality      int
 	Format       ImageType
@@ -321,18 +322,26 @@ func Resize(buf []byte, o Options) ([]byte, error) {
 	C.g_object_unref(C.gpointer(image))
 	image = tmpImage
 
+	// Apply blur if needed
+	if o.BlurAmount > 0 {
+		if -1 != C.vips_gaussian_blur(image, &tmpImage, C.double(o.BlurAmount)) {
+			C.g_object_unref(C.gpointer(image))
+			image = tmpImage
+		}
+	}
+
 	// Finally save
 	length := C.size_t(0)
 	var ptr unsafe.Pointer
 	switch o.Format {
 	case PNG:
-		C.vips_pngsave_custom(image, &ptr, &length, 1, C.int(o.Quality), o.Interlaced)
+		C.vips_pngsave_custom(image, &ptr, &length, 1, C.int(o.Quality), C.int(Btoi(o.Interlaced)))
 	case JPEG:
-		C.vips_jpegsave_custom(image, &ptr, &length, 1, C.int(o.Quality), o.Interlaced)
+		C.vips_jpegsave_custom(image, &ptr, &length, 1, C.int(o.Quality), C.int(Btoi(o.Interlaced)))
 	case WEBP:
 		C.vips_webpsave_custom(image, &ptr, &length, 1, C.int(o.Quality))
 	default:
-		C.vips_jpegsave_custom(image, &ptr, &length, 1, C.int(o.Quality), o.Interlaced)
+		C.vips_jpegsave_custom(image, &ptr, &length, 1, C.int(o.Quality), C.int(Btoi(o.Interlaced)))
 	}
 	C.g_object_unref(C.gpointer(image))
 
@@ -342,6 +351,13 @@ func Resize(buf []byte, o Options) ([]byte, error) {
 
 	return buf, nil
 }
+
+func Btoi(b bool) int {
+    if b {
+        return 1
+    }
+    return 0
+ }
 
 func resizeError() error {
 	s := C.GoString(C.vips_error_buffer())
