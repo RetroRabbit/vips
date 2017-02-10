@@ -19,7 +19,7 @@ use separate command line tools like [jpegoptim](https://github.com/tjko/jpegopt
 
 ## Installation
 
-    go get github.com/daddye/vips
+    go get github.com/RetroRabbit/vips
 
 * [libvips](https://github.com/jcupitt/libvips) v7.38.5+
 
@@ -48,7 +48,7 @@ Compiling from source is recommended:
 
 ## Usage
 
-You can use package from the command line (`go install github.com/daddye/vips/vips-cmd`):
+You can use package from the command line (`go install github.com/RetroRabbit/vips/vips-cmd`):
 
     vips-cmd -file test.jpg -width 400 -height 600 > /tmp/test.jpg
 
