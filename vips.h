@@ -123,3 +123,9 @@ vips_webpsave_custom(VipsImage *in, void **buf, size_t *len, int strip, int qual
 {
     return vips_webpsave_buffer(in, buf, len, "strip", strip, "Q", quality, NULL);
 }
+
+int
+vips_gifload_buffer_seq(void *buf, size_t len, VipsImage **out)
+{
+    return vips_gifload_buffer(buf, len, out, "access", VIPS_ACCESS_SEQUENTIAL, NULL);
+};

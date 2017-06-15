@@ -21,8 +21,9 @@ const DEBUG = false
 
 var (
 	MARKER_JPEG = []byte{0xff, 0xd8}
-	MARKER_WEBP = []byte{0x52, 0x49}
 	MARKER_PNG  = []byte{0x89, 0x50}
+	MARKER_GIF  = []byte{0x47, 0x49, 0x46}
+	MARKER_WEBP = []byte{0x57, 0x45, 0x42, 0x50}
 )
 
 type ImageType int
@@ -31,6 +32,7 @@ const (
 	UNKNOWN ImageType = iota
 	JPEG
 	PNG
+	GIF
 	WEBP
 )
 
@@ -63,7 +65,7 @@ type Options struct {
 	Crop         bool
 	Enlarge      bool
 	Extend       Extend
-	Interlaced	 bool
+	Interlaced   bool
 	Embed        bool
 	Interpolator Interpolator
 	BlurAmount   float32
@@ -122,7 +124,9 @@ func Resize(buf []byte, o Options) ([]byte, error) {
 		typ = JPEG
 	case bytes.Equal(buf[:2], MARKER_PNG):
 		typ = PNG
-	case bytes.Equal(buf[:2], MARKER_WEBP):
+	case bytes.Equal(buf[:3], MARKER_GIF):
+		typ = GIF
+	case bytes.Equal(buf[8:12], MARKER_WEBP):
 		typ = WEBP
 	default:
 		return nil, errors.New("unknown image format")
@@ -137,6 +141,8 @@ func Resize(buf []byte, o Options) ([]byte, error) {
 		C.vips_jpegload_buffer_seq(unsafe.Pointer(&buf[0]), C.size_t(len(buf)), &image)
 	case PNG:
 		C.vips_pngload_buffer_seq(unsafe.Pointer(&buf[0]), C.size_t(len(buf)), &image)
+	case GIF:
+		C.vips_gifload_buffer_seq(unsafe.Pointer(&buf[0]), C.size_t(len(buf)), &image)
 	case WEBP:
 		C.vips_webpload_buffer_seq(unsafe.Pointer(&buf[0]), C.size_t(len(buf)), &image)
 	}
@@ -336,7 +342,7 @@ func Resize(buf []byte, o Options) ([]byte, error) {
 	switch o.Format {
 	case PNG:
 		C.vips_pngsave_custom(image, &ptr, &length, 1, C.int(o.Quality), C.int(Btoi(o.Interlaced)))
-	case JPEG:
+	case JPEG, UNKNOWN:
 		C.vips_jpegsave_custom(image, &ptr, &length, 1, C.int(o.Quality), C.int(Btoi(o.Interlaced)))
 	case WEBP:
 		C.vips_webpsave_custom(image, &ptr, &length, 1, C.int(o.Quality))
@@ -353,11 +359,11 @@ func Resize(buf []byte, o Options) ([]byte, error) {
 }
 
 func Btoi(b bool) int {
-    if b {
-        return 1
-    }
-    return 0
- }
+	if b {
+		return 1
+	}
+	return 0
+}
 
 func resizeError() error {
 	s := C.GoString(C.vips_error_buffer())
