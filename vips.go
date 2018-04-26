@@ -10,11 +10,18 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	img "image"
+	"image/jpeg"
+	"image/png"
 
 	"math"
 	"os"
 	"runtime"
 	"unsafe"
+
+	"github.com/chai2010/webp"
+	"github.com/muesli/smartcrop"
+	"github.com/muesli/smartcrop/nfnt"
 )
 
 const DEBUG = false
@@ -63,6 +70,7 @@ type Options struct {
 	Height       int
 	Width        int
 	Crop         bool
+	FeatureCrop  bool
 	Enlarge      bool
 	Extend       Extend
 	Interlaced   bool
@@ -296,7 +304,7 @@ func Resize(buf []byte, o Options) ([]byte, error) {
 	affinedHeight := int(image.Ysize)
 
 	if affinedWidth != o.Width || affinedHeight != o.Height {
-		if o.Crop {
+		if o.Crop && !o.FeatureCrop {
 			// Crop
 			debug("cropping")
 			left, top := sharpCalcCrop(affinedWidth, affinedHeight, o.Width, o.Height, o.Gravity)
@@ -354,6 +362,46 @@ func Resize(buf []byte, o Options) ([]byte, error) {
 	// get back the buffer
 	buf = C.GoBytes(ptr, C.int(length))
 	C.g_free(C.gpointer(ptr))
+
+	if o.FeatureCrop {
+		tmpImg, _, err := img.Decode(bytes.NewReader(buf))
+		if err == nil {
+			o.Width = int(math.Min(float64(affinedWidth), float64(o.Width)))
+			o.Height = int(math.Min(float64(affinedHeight), float64(o.Height)))
+			analyzer := smartcrop.NewAnalyzer(nfnt.NewDefaultResizer())
+			imageRect, _ := analyzer.FindBestCrop(tmpImg, o.Width, o.Height)
+
+			// The crop will have the requested aspect ratio, but you need to copy/scale it yourself
+			debug("Smart crop: %+v\n", imageRect)
+
+			type SubImager interface {
+				SubImage(r img.Rectangle) img.Image
+			}
+			featuredImg := tmpImg.(SubImager).SubImage(imageRect)
+			debug("Smart crop featued image generated")
+
+			buffer := new(bytes.Buffer)
+			switch o.Format {
+			case PNG:
+				err = png.Encode(buffer, featuredImg)
+			case JPEG, UNKNOWN:
+				err = jpeg.Encode(buffer, featuredImg, &jpeg.Options{Quality: o.Quality})
+			case WEBP:
+				err = webp.Encode(buffer, featuredImg, &webp.Options{Lossless: true})
+			default:
+				err = jpeg.Encode(buffer, featuredImg, &jpeg.Options{Quality: o.Quality})
+			}
+			debug("Smart crop featued image encoded. %v", err)
+			if err == nil {
+				buf = buffer.Bytes()
+				debug("Smart crop featued image buffered. %d", len(buf))
+			} else {
+				debug("Error finishing featured crop: %v", err)
+			}
+		} else {
+			debug("Error featured cropping: %v", err)
+		}
+	}
 
 	return buf, nil
 }
