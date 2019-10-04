@@ -125,6 +125,11 @@ func Debug() {
 func Resize(buf []byte, o Options) ([]byte, error) {
 	debug("%#+v", o)
 
+	// Empty buffers panic, return to sender
+	if len(buf) == 0 {
+		return buf, nil
+	}
+
 	// detect (if possible) the file type
 	typ := UNKNOWN
 	switch {
