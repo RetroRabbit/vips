@@ -101,7 +101,7 @@ func Initialize() {
 		panic("unable to start vips!")
 	}
 
-	C.vips_concurrency_set(1)
+	C.vips_concurrency_set(8)
 	C.vips_cache_set_max_mem(100 * 1048576) // 100Mb
 	C.vips_cache_set_max(500)
 
@@ -178,16 +178,16 @@ func Resize(buf []byte, o Options) ([]byte, error) {
 	// prepare for factor
 	factor := 0.0
 
- 	// Do not enlarge the output if the input width *or* height are already less than the required dimensions
- 	if !o.Enlarge {
- 		if inWidth < o.Width {
- 			o.Width = inWidth
- 		}
+	// Do not enlarge the output if the input width *or* height are already less than the required dimensions
+	if !o.Enlarge {
+		if inWidth < o.Width {
+			o.Width = inWidth
+		}
 
- 		if inHeight < o.Height {
- 			o.Height = inHeight
- 		}
- 	}
+		if inHeight < o.Height {
+			o.Height = inHeight
+		}
+	}
 
 	// image calculations
 	switch {
