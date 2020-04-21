@@ -1,0 +1,11 @@
+github.com/chai2010/webp v1.1.0 h1:4Ei0/BRroMF9FaXDG2e4OxwFcuW2vcXd+A6tyqTJUQQ=
+github.com/chai2010/webp v1.1.0/go.mod h1:LP12PG5IFmLGHUU26tBiCBKnghxx3toZFwDjOYvd3Ow=
+github.com/daddye/vips v0.0.0-20170307215529-87cfaf94f7a1 h1:RaRfmG1LWGpNsbNSFmcWHtsaAbKcjRvOSCTkDFS5RH8=
+github.com/daddye/vips v0.0.0-20170307215529-87cfaf94f7a1/go.mod h1:UqnfPmY4HfvqOBrGdfGTe7Wog8HFMgaz7laavXMVSss=
+github.com/muesli/smartcrop v0.3.0 h1:JTlSkmxWg/oQ1TcLDoypuirdE8Y/jzNirQeLkxpA6Oc=
+github.com/muesli/smartcrop v0.3.0/go.mod h1:i2fCI/UorTfgEpPPLWiFBv4pye+YAG78RwcQLUkocpI=
+github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646 h1:zYyBkD/k9seD2A7fsi6Oo2LfFZAehjjQMERAvZLEDnQ=
+github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646/go.mod h1:jpp1/29i3P1S/RLdc7JQKbRpFeM1dOBd8T9ki5s+AY8=
+golang.org/x/image v0.0.0-20200119044424-58c23975cae1 h1:5h3ngYt7+vXCDZCup/HkCQgW5XwmSvR/nA2JmJ0RErg=
+golang.org/x/image v0.0.0-20200119044424-58c23975cae1/go.mod h1:FeLwcggjj3mMvU+oOTbSwawSJRM1uh48EjtB4UJZlP0=
+golang.org/x/text v0.3.0/go.mod h1:NqM8EUOU14njkJ3fqMW+pc6Ldnwhi/IjpwHt7yyuwOQ=
