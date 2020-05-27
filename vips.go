@@ -67,19 +67,21 @@ var interpolations = map[Interpolator]string{
 func (i Interpolator) String() string { return interpolations[i] }
 
 type Options struct {
-	Height       int
-	Width        int
-	Crop         bool
-	FeatureCrop  bool
-	Enlarge      bool
-	Extend       Extend
-	Interlaced   bool
-	Embed        bool
-	Interpolator Interpolator
-	BlurAmount   float32
-	Gravity      Gravity
-	Quality      int
-	Format       ImageType
+	Height        int
+	Width         int
+	Crop          bool
+	FeatureCrop   bool
+	Enlarge       bool
+	Extend        Extend
+	Interlaced    bool
+	Embed         bool
+	Interpolator  Interpolator
+	BlurAmount    float32
+	Gravity       Gravity
+	Quality       int
+	Format        ImageType
+	HeightMissing bool
+	WidthMissing  bool
 }
 
 func init() {
@@ -187,6 +189,17 @@ func Resize(buf []byte, o Options) ([]byte, error) {
 		if inHeight < o.Height {
 			o.Height = inHeight
 		}
+	}
+
+	fmt.Println("input", inWidth, "x", inHeight, " to ", o.Width, "x", o.Height, "XXX", o.WidthMissing, o.HeightMissing)
+
+	// super special case here, if either the height or width was missing while constructing the options
+	// the *Missing bools will be set, and the caller might have set a default width or height that completely
+	// skews the image
+	if o.WidthMissing && o.Width > 0 {
+		o.Width = 0
+	} else if o.HeightMissing && o.Height > 0 {
+		o.Height = 0
 	}
 
 	// image calculations
