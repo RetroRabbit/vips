@@ -191,8 +191,6 @@ func Resize(buf []byte, o Options) ([]byte, error) {
 		}
 	}
 
-	fmt.Println("input", inWidth, "x", inHeight, " to ", o.Width, "x", o.Height, "XXX", o.WidthMissing, o.HeightMissing)
-
 	// super special case here, if either the height or width was missing while constructing the options
 	// the *Missing bools will be set, and the caller might have set a default width or height that completely
 	// skews the image
