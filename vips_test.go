@@ -2,10 +2,10 @@ package vips
 
 import (
 	"bytes"
-	"image"
-	"image/jpeg"
-	"image/gif"
 	"golang.org/x/image/webp"
+	"image"
+	"image/gif"
+	"image/jpeg"
 	"io/ioutil"
 	"os"
 	"testing"
